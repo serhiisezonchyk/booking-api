@@ -1,18 +1,13 @@
-import { Request, Response, Router } from 'express';
+import { Router } from 'express';
+import { addPost, deletePost, getPost, getPosts, updatePost } from '../controllers/post.controller';
+import { verifyToken } from '../middleware/verifyToken';
 
 const router: Router = Router();
 
-router.get('/', (req: Request, res: Response) => {
-  res.send('its works');
-});
-router.put('/', (req: Request, res: Response) => {
-  res.send('its works');
-});
-router.post('/', (req: Request, res: Response) => {
-  res.send('its works');
-});
-router.delete('/', (req: Request, res: Response) => {
-  res.send('its works');
-});
+router.get('/', getPosts);
+router.get('/:id', getPost);
+router.post('/', verifyToken, addPost);
+router.put('/:id', verifyToken, updatePost);
+router.delete('/:id', verifyToken, deletePost);
 
 export default router;

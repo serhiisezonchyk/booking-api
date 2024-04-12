@@ -5,15 +5,17 @@ const envSchema = z.object({
   SECRET_KEY: z.string().min(6),
   DATABASE_URL: z.string().min(1),
   PORT: z.number().default(3000),
+  CLIENT_URL: z.string().optional(),
   //   DATABASE_URL: z.string().optional(),
 });
 
-const { SECRET_KEY, DATABASE_URL, PORT } = process.env;
+const { SECRET_KEY, DATABASE_URL, PORT, CLIENT_URL } = process.env;
 
 const parsedResult = envSchema.safeParse({
   SECRET_KEY,
   DATABASE_URL,
   PORT: +PORT,
+  CLIENT_URL,
 });
 if (!parsedResult.success) {
   console.log(parsedResult.error);
