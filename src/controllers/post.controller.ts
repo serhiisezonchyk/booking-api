@@ -14,6 +14,9 @@ interface Query {
 
 export const getPosts = async (req: Request, res: Response) => {
   const query = req.query as Query;
+  // let userId: null | string = null;
+  const { token } = req.cookies;
+
   try {
     const posts = await db.post.findMany({
       where: {
@@ -27,8 +30,31 @@ export const getPosts = async (req: Request, res: Response) => {
         },
       },
     });
-    // console.log(posts);
-    res.status(200).json({ posts: posts });
+
+    if (!token) {
+      return res.status(200).json({ posts: posts });
+    } else {
+      jwt.verify(token, process.env.SECRET_KEY, async (error: VerifyErrors | any, decoded: any) => {
+        const decodedValue: JwtType = decoded;
+        if (error) return res.status(200).json({ posts: posts });
+        else {
+          const userId = decodedValue.id;
+          const postToResponse = [];
+          for (const post of posts) {
+            const saved = await db.savedPost.findUnique({
+              where: {
+                userId_postId: {
+                  postId: post.id,
+                  userId: userId || '',
+                },
+              },
+            });
+            postToResponse.push({ ...post, isSaved: saved ? true : false });
+          }
+          return res.status(200).json({ posts: postToResponse });
+        }
+      });
+    }
   } catch (error) {
     logger.error('Get posts failed');
     res.status(500).json({ error: 'Something went wrong' });
@@ -53,23 +79,25 @@ export const getPost = async (req: Request, res: Response) => {
     let userId: null | string = null;
     const { token } = req.cookies;
     if (!token) {
-      userId = null;
+      return res.status(200).json({ post });
     } else {
       jwt.verify(token, process.env.SECRET_KEY, async (error: VerifyErrors | any, decoded: any) => {
         const decodedValue: JwtType = decoded;
-        if (error) userId = null;
-        else userId = decodedValue.id;
+        if (error) return res.status(200).json({ post });
+        else {
+          const userId = decodedValue.id;
+          const saved = await db.savedPost.findUnique({
+            where: {
+              userId_postId: {
+                postId: id,
+                userId: userId || '',
+              },
+            },
+          });
+          res.status(200).json({ post: { ...post, isSaved: saved ? true : false } });
+        }
       });
     }
-    const saved = await db.savedPost.findUnique({
-      where: {
-        userId_postId: {
-          postId: id,
-          userId: userId || '',
-        },
-      },
-    });
-    res.status(200).json({ post: { ...post, isSaved: saved ? true : false } });
   } catch (error) {
     logger.error('Get post by id failed');
     res.status(500).json({ error: 'Something went wrong' });

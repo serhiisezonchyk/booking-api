@@ -22,6 +22,8 @@ export const addMessage = async (req: Request, res: Response) => {
         userId: tokenId!,
       },
     });
+    const currentTime = new Date();
+
     await db.chat.update({
       where: {
         id: chatId,
@@ -29,6 +31,7 @@ export const addMessage = async (req: Request, res: Response) => {
       data: {
         seenBy: [tokenId!],
         lastMessage: text,
+        lastMessageTime: currentTime,
       },
     });
     res.status(200).json({ message });

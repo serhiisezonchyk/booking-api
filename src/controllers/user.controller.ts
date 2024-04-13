@@ -79,6 +79,7 @@ export const savePost = async (req: Request, res: Response) => {
   const { postId } = req.body;
   const tokenId = req.user?.id;
 
+  console.log(tokenId, postId);
   try {
     const savedPost = await db.savedPost.findUnique({
       where: {
@@ -96,6 +97,7 @@ export const savePost = async (req: Request, res: Response) => {
       });
       res.status(200).json({ message: 'Post removed from saved list' });
     } else {
+      console.log('here');
       await db.savedPost.create({
         data: {
           userId: tokenId!,
@@ -105,6 +107,7 @@ export const savePost = async (req: Request, res: Response) => {
       res.status(200).json({ message: 'Post saved to saved list' });
     }
   } catch (error) {
+    console.log(error);
     logger.error('User deleting failed');
     res.status(500).json({ error: 'Something went wrong' });
   }

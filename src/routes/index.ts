@@ -9,5 +9,7 @@ const router: Router = Router();
 router.use('/auth', authRouter);
 router.use('/post', postRouter);
 router.use('/user', userRouter);
+router.use('/chat', chatRouter);
+router.use('/message', messageRouter);
 
 export default router;

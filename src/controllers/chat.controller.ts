@@ -1,6 +1,11 @@
+import { Chat, User } from '@prisma/client';
 import { Request, Response } from 'express';
 import { db } from '../db';
 
+type Receiver = Pick<User, 'username' | 'avatar' | 'id'>;
+interface ChatsResponse extends Chat {
+  receiver: Receiver;
+}
 export const getChats = async (req: Request, res: Response) => {
   const tokenId = req.user?.id;
 
@@ -12,7 +17,23 @@ export const getChats = async (req: Request, res: Response) => {
         },
       },
     });
-    res.status(200).json();
+    const populatedChats: ChatsResponse[] = [];
+
+    for (const chat of chats) {
+      const receiverId = chat.userIDs.find((id) => id !== tokenId);
+      const receiver = await db.user.findUnique({
+        where: {
+          id: receiverId,
+        },
+        select: {
+          id: true,
+          username: true,
+          avatar: true,
+        },
+      });
+      populatedChats.push({ ...chat, receiver: receiver as Receiver });
+    }
+    res.status(200).json({ chats: populatedChats });
   } catch (error) {
     logger.error('Get chats failed');
     res.status(500).json({ error: 'Something went wrong' });
