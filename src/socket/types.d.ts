@@ -1,9 +1,11 @@
+import { Message } from '@prisma/client';
+
 export interface ServerToClientEvents{
-    getMessage:(data:string)=>void;
+    getMessage:(data:Message)=>void;
 }
 
 export interface ClientToServerEvents {
     newUser:(userId:string)=>void;
     disconnect:()=>void;
-    sendMessage:(data:{ receiverId: string; data: string })=>void;
+    sendMessage:(data:{ receiverId: string; data: Message })=>void;
   }
