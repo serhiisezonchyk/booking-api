@@ -137,3 +137,23 @@ export const getProfilePosts = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Something went wrong' });
   }
 };
+
+export const getNotificationNumber = async (req: Request, res: Response) => {
+  const tokenId = req.user?.id;
+  try {
+    const num = await db.chat.count({
+      where: {
+        userIDs: { hasSome: [tokenId!] },
+        NOT: {
+          seenBy: {
+            hasSome: [tokenId!],
+          },
+        },
+      },
+    });
+    res.status(200).json(num);
+  } catch (error) {
+    logger.error('Get notification failed');
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+};

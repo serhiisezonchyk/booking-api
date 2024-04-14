@@ -43,8 +43,9 @@ export const getChats = async (req: Request, res: Response) => {
 export const getChat = async (req: Request, res: Response) => {
   const tokenId = req.user?.id;
 
+  console.log(req.params.id)
   try {
-    const chat = db.chat.findUnique({
+    const chat = await db.chat.findUnique({
       where: {
         id: req.params.id,
         userIDs: {
@@ -56,6 +57,7 @@ export const getChat = async (req: Request, res: Response) => {
           orderBy: {
             createdAt: 'asc',
           },
+          // take:30
         },
       },
     });

@@ -5,8 +5,9 @@ type SchemaType<T extends ZodTypeDef = ZodTypeDef> = ZodType<any, T>;
 
 export function validateData(schema: SchemaType) {
   return (req: Request, res: Response, next: NextFunction) => {
+    console.log(req.body)
     try {
-      schema.parse(req.body.data);
+      schema.parse(req.body);
       next();
     } catch (error) {
       if (error instanceof ZodError) {

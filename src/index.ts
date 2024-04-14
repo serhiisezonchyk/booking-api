@@ -15,7 +15,9 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: 'http://localhost:5173' },
 });
-// app.use(cors());
+//Initialize socket events
+socketEvents(io);
+
 app.use(cors({ origin: process.env.CLIENT_URL ?? '*', credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
@@ -28,8 +30,7 @@ app.use('/api', router);
 //Log not found routes
 app.use(routeNotFound);
 
-//Initialize socket events
-socketEvents(io);
+
 server.listen(process.env.PORT, () => {
   console.log(`Server is running on port: ${process.env.PORT}.`);
 });
