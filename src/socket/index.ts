@@ -1,4 +1,5 @@
 import { Server, Socket } from 'socket.io';
+import { ClientToServerEvents, ServerToClientEvents } from './types';
 
 interface User {
   userId: string;
@@ -15,22 +16,18 @@ const removeUser = (socketId: string) => {
 const getUser = (userId: string) => {
   return onlineUsers.find((user) => user.userId === userId);
 };
-export default function socketEvents(io: Server) {
-  io.on('connection', (socket: Socket) => {
-    socket.on('newUser', (userId: string) => {
+export default function socketEvents(io: Server<ClientToServerEvents, ServerToClientEvents>) {
+  io.on('connection', (socket: Socket<ClientToServerEvents>) => {
+    socket.on('newUser', (userId) => {
       addUser(userId, socket.id);
     });
     socket.on('disconnect', () => {
       removeUser(socket.id);
     });
-    socket.on('sendMessage', ({ receiverId, data }: { receiverId: string; data: string }) => {
-      const receiver = getUser(receiverId);
-      console.log('*********************');
-      console.log('data', data);
-      console.log('online', onlineUsers);
-      console.log('receiver', receiver);
-      console.log('*********************');
-      io.to(receiver?.socketId!).emit('getMessage', data);
+
+    socket.on('sendMessage', (data) => {
+      const receiver = getUser(data.receiverId);
+      io.to(receiver?.socketId!).emit('getMessage', data.data);
     });
   });
 }

@@ -9,10 +9,11 @@ import router from './routes';
 import socketEvents from './socket';
 import './utils/env';
 import './utils/logger';
+import { ClientToServerEvents, ServerToClientEvents } from './socket/types';
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
+const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
   cors: { origin: 'http://localhost:5173' },
 });
 //Initialize socket events
@@ -29,7 +30,6 @@ app.use('/api', router);
 
 //Log not found routes
 app.use(routeNotFound);
-
 
 server.listen(process.env.PORT, () => {
   console.log(`Server is running on port: ${process.env.PORT}.`);
